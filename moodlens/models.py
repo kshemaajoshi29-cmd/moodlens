@@ -41,6 +41,27 @@ class EnhanceResponse(BaseModel):
     is_preset: bool = Field(description="Whether a built-in preset was used")
 
 
+class SceneInfo(BaseModel):
+    scene_type: str = Field(description="Scene category, e.g. 'wedding', 'beach', 'portrait'")
+    description: str = Field(description="One-sentence scene description")
+    suggested_presets: list[str] = Field(description="Up to 3 preset names from the 10 built-in presets")
+    confidence: float = Field(description="Detection confidence 0.0–1.0")
+
+
+class BatchEnhanceItem(BaseModel):
+    filename: str = Field(description="Original filename")
+    image_url: str = Field(description="Base64 data URL of enhanced image")
+    mood_used: str = Field(description="Mood name or free-text that was applied")
+    style_notes: str = Field(description="Human-readable description of the style")
+    intensity_used: float = Field(description="Intensity factor applied (0–1)")
+    is_preset: bool = Field(description="Whether a built-in preset was used")
+
+
+class BatchEnhanceResponse(BaseModel):
+    items: list[BatchEnhanceItem]
+    total: int = Field(description="Number of images processed")
+
+
 class HealthResponse(BaseModel):
     status: str
     version: str

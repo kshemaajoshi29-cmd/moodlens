@@ -124,7 +124,18 @@ class ImageEnhancer:
         adjustments: PhotoAdjustments,
         intensity: float = 1.0,
         output_format: str = "webp",
+        blur_background: bool = False,
+        blur_radius: int = 21,
+        background_intensity: float = 1.0,
     ) -> bytes:
+        if blur_background:
+            try:
+                from .background_blur import BackgroundBlur
+                image_bytes = BackgroundBlur().apply(image_bytes, blur_radius, background_intensity)
+            except ImportError:
+                from fastapi import HTTPException
+                raise HTTPException(501, "Install rembg to use background blur: pip install rembg")
+
         img = Image.open(io.BytesIO(image_bytes))
         img = ImageOps.exif_transpose(img)  # honour EXIF orientation before any processing
         img = img.convert("RGB")
