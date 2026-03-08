@@ -82,17 +82,59 @@
     .upload-text   { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
     .upload-text strong { color: var(--text); }
 
-    .preview-wrap  { display: none; position: relative; border-radius: 10px; overflow: hidden; }
-    .preview-wrap img {
-      width: 100%; max-height: 360px; object-fit: contain;
-      background: #000; display: block; border-radius: 10px;
+    /* ── Multi-photo thumbnails ──────────────────────────────────────────── */
+    .thumb-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 0;
     }
-    .preview-change {
-      position: absolute; bottom: 10px; right: 10px;
-      background: rgba(0,0,0,.75); color: #fff;
-      border: none; border-radius: 6px; padding: 6px 14px;
-      font-size: 0.78rem; cursor: pointer; backdrop-filter: blur(4px);
+    .thumb-item {
+      position: relative;
+      aspect-ratio: 1;
     }
+    .thumb-item img {
+      width: 100%; height: 100%;
+      object-fit: cover; border-radius: 6px; display: block;
+    }
+    .thumb-remove {
+      position: absolute; top: 3px; right: 3px;
+      background: rgba(0,0,0,.78); color: #fff;
+      border: none; border-radius: 50%;
+      width: 20px; height: 20px;
+      font-size: 14px; line-height: 1;
+      cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .thumb-remove:hover { background: var(--error); }
+
+    .photo-count {
+      font-size: 0.82rem; color: var(--text-muted);
+      margin-top: 12px; display: none;
+    }
+    .photo-count strong { color: var(--text); }
+
+    .photo-actions {
+      display: none;
+      align-items: center; gap: 10px;
+      margin-top: 10px;
+    }
+    .btn-add-more {
+      font-size: 0.82rem; color: var(--accent);
+      background: none; border: 1px solid rgba(124,106,247,.5);
+      border-radius: 6px; padding: 5px 14px;
+      cursor: pointer; position: relative; overflow: hidden;
+      white-space: nowrap;
+    }
+    .btn-add-more:hover { border-color: var(--accent); background: rgba(124,106,247,.07); }
+    .btn-add-more input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .btn-clear-all {
+      font-size: 0.82rem; color: var(--text-muted);
+      background: none; border: none; cursor: pointer; padding: 5px;
+    }
+    .btn-clear-all:hover { color: var(--error); }
 
     /* ── Preset grid ────────────────────────────────────────────────────── */
     .preset-grid {
@@ -188,18 +230,6 @@
     /* ── Result ─────────────────────────────────────────────────────────── */
     #result-section { display: none; margin-top: 16px; }
 
-    .compare-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
-    }
-    .compare-label {
-      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px;
-    }
-    .compare-grid img {
-      width: 100%; border-radius: 8px; object-fit: contain;
-      background: #000; max-height: 300px;
-    }
-
     .result-meta {
       background: var(--surface2); border-radius: 8px;
       padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem;
@@ -209,40 +239,170 @@
     .meta-key { color: var(--text-muted); min-width: 68px; flex-shrink: 0; }
     .meta-val { color: var(--text); word-break: break-word; }
 
-    .btn-download {
-      display: block; width: 100%; padding: 13px;
+    /* ── Gallery ────────────────────────────────────────────────────────── */
+    .btn-download-all {
+      display: none; width: 100%; padding: 13px;
       background: var(--success); color: #000;
       border: none; border-radius: 10px;
       font-size: 0.95rem; font-weight: 700;
-      cursor: pointer; text-align: center; text-decoration: none;
-      transition: opacity .15s;
+      cursor: pointer; margin-bottom: 12px;
     }
-    .btn-download:hover { opacity: .85; }
+    .btn-download-all:hover { opacity: .85; }
+
+    .result-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .result-gallery.single {
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 560px) {
+      .result-gallery:not(.single) { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .gallery-card {
+      background: var(--surface2);
+      border-radius: 8px; overflow: hidden;
+    }
+    .gallery-before-after {
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .gallery-before-after > div { position: relative; }
+    .gallery-before-after img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+    }
+    .result-gallery.single .gallery-before-after img {
+      aspect-ratio: auto; max-height: 300px; object-fit: contain; background: #000;
+    }
+    .gallery-label {
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-muted);
+      padding: 4px 6px 2px;
+    }
+    .gallery-card-footer { padding: 8px; }
+    .gallery-filename {
+      font-size: 0.72rem; color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+    .btn-dl-single {
+      display: block; width: 100%; padding: 7px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; text-align: center; text-decoration: none;
+    }
+    .btn-dl-single:hover { background: var(--accent-hover); }
+
+    /* ── Scene badge ────────────────────────────────────────────────────── */
+    .scene-badge {
+      display: none;
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--accent);
+      background: rgba(124,106,247,.15);
+      border: 1px solid rgba(124,106,247,.35);
+      border-radius: 4px; padding: 2px 6px;
+      margin-top: 5px;
+    }
+    .preset-card.scene-suggested .scene-badge { display: inline-block; }
+    .preset-card.scene-suggested {
+      border-color: rgba(124,106,247,.55);
+      background: rgba(124,106,247,.07);
+    }
+
+    /* ── Scene status ───────────────────────────────────────────────────── */
+    #scene-status {
+      display: none; align-items: center; gap: 8px;
+      font-size: 0.82rem; color: var(--text-muted);
+      margin-top: 12px;
+    }
+    #scene-status.visible { display: flex; }
+    #scene-status .spinner { border-top-color: var(--accent); }
+
+    /* ── Reference upload ───────────────────────────────────────────────── */
+    .ref-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      margin-top: 8px;
+    }
+    .ref-upload-area:hover, .ref-upload-area.drag-over {
+      border-color: var(--accent);
+      background: rgba(124,106,247,.06);
+    }
+    .ref-upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .ref-preview-wrap { display: none; position: relative; margin-top: 8px; }
+    .ref-preview-wrap img {
+      width: 100%; max-height: 160px; object-fit: cover;
+      border-radius: 8px; display: block;
+    }
+    .btn-remove-ref {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(0,0,0,.7); color: #fff;
+      border: none; border-radius: 6px; padding: 4px 10px;
+      font-size: 0.75rem; cursor: pointer;
+    }
+
+    /* ── Background blur controls ───────────────────────────────────────── */
+    .blur-row {
+      display: flex; align-items: center; gap: 10px; margin-top: 18px;
+    }
+    .blur-row label { font-size: 0.82rem; color: var(--text-muted); cursor: pointer; user-select: none; }
+    .blur-options { display: none; margin-top: 12px; }
+    .blur-options.visible { display: block; }
+    .blur-options .strength-row { margin-top: 10px; }
   </style>
 </head>
 <body>
 
 <header>
   <h1>Mood<span>Lens</span></h1>
-  <p>Transform your photos with AI-powered mood enhancement</p>
+  <p>Transform your trip photos with AI-powered mood enhancement</p>
 </header>
 
 <div class="container">
 
   <!-- Step 1: Upload -->
   <div class="card">
-    <div class="card-title">Step 1 — Upload Photo</div>
-    <div id="upload-area" class="upload-area">
-      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp">
+    <div class="card-title">Step 1 — Upload Photos</div>
+
+    <!-- Drop zone (shown when no files selected) -->
+    <div id="upload-area" class="upload-area"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="event.preventDefault();this.classList.remove('drag-over');loadFiles(event.dataTransfer.files)">
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple
+             onchange="loadFiles(this.files)">
       <div class="upload-icon">🖼️</div>
       <div class="upload-text">
-        <strong>Click to choose a photo</strong> or drag &amp; drop here<br>
-        JPEG · PNG · WebP &nbsp;·&nbsp; max 10 MB
+        <strong>Click to choose photos</strong> or drag &amp; drop here<br>
+        JPEG · PNG · WebP &nbsp;·&nbsp; max 10 MB each &nbsp;·&nbsp; up to 20 photos
       </div>
     </div>
-    <div id="preview-wrap" class="preview-wrap">
-      <img id="preview-img" src="" alt="Preview">
-      <button class="preview-change" onclick="resetUpload()">Change photo</button>
+
+    <!-- Thumbnail grid (shown after files are selected) -->
+    <div id="thumb-grid" class="thumb-grid"></div>
+    <div id="photo-count" class="photo-count"></div>
+    <div id="photo-actions" class="photo-actions">
+      <label class="btn-add-more">
+        + Add more
+        <input type="file" id="add-more-input" accept="image/jpeg,image/png,image/webp" multiple
+               onchange="loadFiles(this.files);this.value=''">
+      </label>
+      <button class="btn-clear-all" onclick="resetUpload()">Clear all</button>
+    </div>
+
+    <div id="scene-status">
+      <span class="spinner" id="scene-spinner" style="display:none"></span>
+      <span id="scene-text">Detecting scene…</span>
     </div>
   </div>
 
@@ -255,51 +415,61 @@
         <div class="pi">🎞️</div>
         <div class="pn">Vintage</div>
         <div class="pd">Sepia · Film grain</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="hawaii" onclick="selectPreset(this)">
         <div class="pi">🌺</div>
         <div class="pn">Hawaii</div>
         <div class="pd">Tropical · Golden</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="cinematic" onclick="selectPreset(this)">
         <div class="pi">🎬</div>
         <div class="pn">Cinematic</div>
         <div class="pd">Teal-orange · Film</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="moody_rainy" onclick="selectPreset(this)">
         <div class="pi">🌧️</div>
         <div class="pn">Moody Rain</div>
         <div class="pd">Desaturated · Fog</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="california_coastal" onclick="selectPreset(this)">
         <div class="pi">🏄</div>
         <div class="pn">California</div>
         <div class="pd">Hazy · Sun-bleached</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="golden_hour" onclick="selectPreset(this)">
         <div class="pi">🌅</div>
         <div class="pn">Golden Hour</div>
         <div class="pd">Amber · Romantic</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="nordic" onclick="selectPreset(this)">
         <div class="pi">🧊</div>
         <div class="pn">Nordic</div>
         <div class="pd">Cool · Minimal</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="desert_sun" onclick="selectPreset(this)">
         <div class="pi">🏜️</div>
         <div class="pn">Desert Sun</div>
         <div class="pd">Dusty · High contrast</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="jungle_green" onclick="selectPreset(this)">
         <div class="pi">🌿</div>
         <div class="pn">Jungle</div>
         <div class="pd">Lush · Vivid green</div>
+        <div class="scene-badge">Suggested</div>
       </div>
       <div class="preset-card" data-mood="new_york" onclick="selectPreset(this)">
         <div class="pi">🌆</div>
         <div class="pn">New York</div>
         <div class="pd">Gritty · Urban · Film</div>
+        <div class="scene-badge">Suggested</div>
       </div>
     </div>
 
@@ -315,6 +485,47 @@
              oninput="document.getElementById('strength-val').textContent = (+this.value).toFixed(2)">
       <span class="strength-val" id="strength-val">1.00</span>
     </div>
+
+    <!-- Background blur -->
+    <div class="blur-row">
+      <input type="checkbox" id="blur-toggle" onchange="toggleBlur(this)">
+      <label for="blur-toggle">Background blur (Portrait mode)</label>
+    </div>
+    <div class="blur-options" id="blur-options">
+      <div class="strength-row">
+        <span class="strength-label">Blur radius</span>
+        <input type="range" id="blur-radius" min="5" max="50" step="1" value="21"
+               oninput="document.getElementById('blur-radius-val').textContent = this.value">
+        <span class="strength-val" id="blur-radius-val">21</span>
+      </div>
+      <div class="strength-row">
+        <span class="strength-label">BG tone</span>
+        <input type="range" id="bg-intensity" min="0.0" max="1.0" step="0.05" value="1.0"
+               oninput="document.getElementById('bg-intensity-val').textContent = (+this.value).toFixed(2)">
+        <span class="strength-val" id="bg-intensity-val">1.00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Style reference card -->
+  <div class="card">
+    <div class="card-title">Style Reference (optional)</div>
+    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+      Upload a Pinterest screenshot or moodboard to match its colour aesthetic instead of the mood above.
+    </p>
+    <div id="ref-upload-area" class="ref-upload-area"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="event.preventDefault();this.classList.remove('drag-over');const f=event.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadRefFile(f)">
+      <input type="file" id="ref-file-input" accept="image/jpeg,image/png,image/webp"
+             onchange="if(this.files[0])loadRefFile(this.files[0])">
+      <div style="font-size:1.6rem;margin-bottom:8px">🎨</div>
+      <div class="upload-text"><strong>Click or drag a moodboard image</strong><br>JPEG · PNG · WebP</div>
+    </div>
+    <div id="ref-preview-wrap" class="ref-preview-wrap">
+      <img id="ref-preview-img" src="" alt="Reference preview">
+      <button class="btn-remove-ref" onclick="resetRefUpload()">Remove</button>
+    </div>
   </div>
 
   <!-- Enhance -->
@@ -326,67 +537,175 @@
   <!-- Result -->
   <div id="result-section" class="card">
     <div class="card-title">Result</div>
-    <div class="compare-grid">
-      <div>
-        <div class="compare-label">Before</div>
-        <img id="result-before" src="" alt="Original">
-      </div>
-      <div>
-        <div class="compare-label">After</div>
-        <img id="result-after" src="" alt="Enhanced">
-      </div>
-    </div>
     <div class="result-meta" id="result-meta"></div>
-    <a class="btn-download" id="download-btn" href="#" download="moodlens_enhanced.webp">
-      ⬇ Download Enhanced Photo
-    </a>
+    <button class="btn-download-all" id="btn-download-all" onclick="downloadAll()">
+      ⬇ Download All Photos
+    </button>
+    <div class="result-gallery" id="result-gallery"></div>
   </div>
 
 </div><!-- /container -->
 
 <script>
   let selectedPreset = null;
-  let uploadedFile   = null;
+  let uploadedFiles  = [];   // Array<File>
+  let referenceFile  = null;
+  let batchResults   = [];   // Array<BatchEnhanceItem>
 
-  // ── Upload ──────────────────────────────────────────────────────────────────
-  const uploadArea  = document.getElementById('upload-area');
-  const fileInput   = document.getElementById('file-input');
-  const previewWrap = document.getElementById('preview-wrap');
-  const previewImg  = document.getElementById('preview-img');
+  // ── Upload ───────────────────────────────────────────────────────────────────
+  const uploadArea = document.getElementById('upload-area');
+  const thumbGrid  = document.getElementById('thumb-grid');
 
-  fileInput.addEventListener('change', e => {
-    if (e.target.files[0]) loadFile(e.target.files[0]);
-  });
-  uploadArea.addEventListener('dragover', e => {
-    e.preventDefault(); uploadArea.classList.add('drag-over');
-  });
-  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-  uploadArea.addEventListener('drop', e => {
-    e.preventDefault(); uploadArea.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f && f.type.startsWith('image/')) loadFile(f);
+  // Delegate remove-button clicks on the thumb grid
+  thumbGrid.addEventListener('click', e => {
+    const btn = e.target.closest('.thumb-remove');
+    if (!btn) return;
+    const item = btn.closest('.thumb-item');
+    removeFile(parseInt(item.dataset.index, 10));
   });
 
-  function loadFile(file) {
-    uploadedFile = file;
+  function loadFiles(fileList) {
+    const incoming = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    if (!incoming.length) return;
+
+    const remaining = 20 - uploadedFiles.length;
+    if (remaining <= 0) { showError('Maximum 20 photos per batch already reached.'); return; }
+
+    const added = incoming.slice(0, remaining);
+    if (incoming.length > remaining) {
+      showError(`Only ${remaining} slot(s) left — added the first ${remaining} photo(s).`);
+    }
+
+    uploadedFiles = [...uploadedFiles, ...added];
+    renderThumbnails();
+
+    // Scene detect on the very first photo added
+    if (uploadedFiles.length === added.length) detectScene(added[0]);
+  }
+
+  function removeFile(idx) {
+    uploadedFiles.splice(idx, 1);
+    renderThumbnails();
+    if (uploadedFiles.length === 0) {
+      uploadArea.style.display = '';
+      thumbGrid.style.display = 'none';
+      document.getElementById('photo-count').style.display = 'none';
+      document.getElementById('photo-actions').style.display = 'none';
+      const ss = document.getElementById('scene-status');
+      ss.classList.remove('visible');
+      document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('scene-suggested'));
+    }
+    updateEnhanceBtn();
+  }
+
+  function renderThumbnails() {
+    thumbGrid.innerHTML = '';
+    uploadedFiles.forEach((file, i) => {
+      const item = document.createElement('div');
+      item.className = 'thumb-item';
+      item.dataset.index = i;
+
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = file.name;
+
+      const btn = document.createElement('button');
+      btn.className = 'thumb-remove';
+      btn.title = 'Remove';
+      btn.innerHTML = '&times;';
+
+      item.appendChild(img);
+      item.appendChild(btn);
+      thumbGrid.appendChild(item);
+    });
+
+    const n = uploadedFiles.length;
+    document.getElementById('photo-count').innerHTML =
+      `<strong>${n}</strong> photo${n !== 1 ? 's' : ''} selected`;
+
+    uploadArea.style.display = 'none';
+    thumbGrid.style.display = 'grid';
+    document.getElementById('photo-count').style.display = 'block';
+    document.getElementById('photo-actions').style.display = 'flex';
+    updateEnhanceBtn();
+  }
+
+  function resetUpload() {
+    uploadedFiles = [];
+    document.getElementById('file-input').value = '';
+    thumbGrid.innerHTML = '';
+    thumbGrid.style.display = 'none';
+    document.getElementById('photo-count').style.display = 'none';
+    document.getElementById('photo-actions').style.display = 'none';
+    uploadArea.style.display = '';
+    document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('scene-suggested'));
+    document.getElementById('scene-status').classList.remove('visible');
+    updateEnhanceBtn();
+  }
+
+  function updateEnhanceBtn() {
+    const btn = document.getElementById('enhance-btn');
+    const n = uploadedFiles.length;
+    btn.innerHTML = n > 1 ? `✨ Enhance ${n} Photos` : '✨ Enhance Photo';
+  }
+
+  // ── Reference image ──────────────────────────────────────────────────────────
+  function loadRefFile(file) {
+    referenceFile = file;
     const reader = new FileReader();
     reader.onload = e => {
-      previewImg.src = e.target.result;
-      uploadArea.style.display = 'none';
-      previewWrap.style.display = 'block';
+      document.getElementById('ref-preview-img').src = e.target.result;
+      document.getElementById('ref-upload-area').style.display = 'none';
+      document.getElementById('ref-preview-wrap').style.display = 'block';
     };
     reader.readAsDataURL(file);
   }
 
-  function resetUpload() {
-    uploadedFile = null;
-    fileInput.value = '';
-    previewImg.src = '';
-    uploadArea.style.display = '';
-    previewWrap.style.display = 'none';
+  function resetRefUpload() {
+    referenceFile = null;
+    document.getElementById('ref-file-input').value = '';
+    document.getElementById('ref-preview-img').src = '';
+    document.getElementById('ref-upload-area').style.display = '';
+    document.getElementById('ref-preview-wrap').style.display = 'none';
   }
 
-  // ── Presets ─────────────────────────────────────────────────────────────────
+  // ── Scene detection ──────────────────────────────────────────────────────────
+  async function detectScene(file) {
+    const ss      = document.getElementById('scene-status');
+    const spinner = document.getElementById('scene-spinner');
+    const text    = document.getElementById('scene-text');
+
+    spinner.style.display = 'inline-block';
+    text.textContent = 'Detecting scene…';
+    ss.classList.add('visible');
+    document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('scene-suggested'));
+
+    const form = new FormData();
+    form.append('image', file);
+
+    try {
+      const resp = await fetch('/api/v1/detect-scene', { method: 'POST', body: form });
+      if (!resp.ok) { ss.classList.remove('visible'); return; }
+      const data = await resp.json();
+
+      (data.suggested_presets || []).forEach(preset => {
+        const card = document.querySelector(`.preset-card[data-mood="${preset}"]`);
+        if (card) card.classList.add('scene-suggested');
+      });
+
+      spinner.style.display = 'none';
+      text.textContent = `Scene: ${data.scene_type} — ${data.description}`;
+    } catch {
+      ss.classList.remove('visible');
+    }
+  }
+
+  // ── Blur toggle ──────────────────────────────────────────────────────────────
+  function toggleBlur(checkbox) {
+    document.getElementById('blur-options').classList.toggle('visible', checkbox.checked);
+  }
+
+  // ── Presets ──────────────────────────────────────────────────────────────────
   function selectPreset(el) {
     document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
@@ -399,68 +718,129 @@
     selectedPreset = null;
   }
 
-  // ── Enhance ─────────────────────────────────────────────────────────────────
+  // ── Enhance ──────────────────────────────────────────────────────────────────
   async function runEnhance() {
     const mood     = selectedPreset || document.getElementById('custom-mood').value.trim();
     const strength = document.getElementById('strength-slider').value;
     const errorBox = document.getElementById('error-box');
-
     errorBox.style.display = 'none';
 
-    if (!uploadedFile) { showError('Please upload a photo first.'); return; }
-    if (!mood)         { showError('Please choose a preset or type a mood description.'); return; }
+    if (!uploadedFiles.length) { showError('Please upload at least one photo first.'); return; }
+    if (!mood && !referenceFile) {
+      showError('Please choose a preset, type a mood description, or upload a style reference.');
+      return;
+    }
 
     const btn = document.getElementById('enhance-btn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Enhancing… (this may take ~30s)';
+    const n = uploadedFiles.length;
+    btn.innerHTML = `<span class="spinner"></span>Enhancing ${n > 1 ? n + ' photos' : 'photo'}… (may take ~${n * 5}s)`;
 
     const form = new FormData();
-    form.append('image', uploadedFile);
-    form.append('mood', mood);
+    uploadedFiles.forEach(f => form.append('images', f));
+    form.append('mood', mood || 'neutral');
     form.append('intensity', strength);
 
+    if (referenceFile) form.append('reference_image', referenceFile);
+
+    const blurToggle = document.getElementById('blur-toggle');
+    if (blurToggle.checked) {
+      form.append('blur_background', 'true');
+      form.append('blur_radius', document.getElementById('blur-radius').value);
+      form.append('background_intensity', document.getElementById('bg-intensity').value);
+    }
+
     try {
-      const resp = await fetch('/api/v1/enhance', { method: 'POST', body: form });
+      const resp = await fetch('/api/v1/enhance-batch', { method: 'POST', body: form });
       const body = await resp.json();
       if (!resp.ok) { showError(body.detail || `Server error ${resp.status}`); return; }
-      showResult(body);
-    } catch (err) {
+      batchResults = body.items;
+      showResults(body);
+    } catch {
       showError('Network error — make sure the server is running.');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '✨ Enhance Photo';
+      updateEnhanceBtn();
     }
   }
 
-  function showResult(body) {
-    document.getElementById('result-before').src = previewImg.src;
-    document.getElementById('result-after').src  = body.image_url;
+  // ── Results ──────────────────────────────────────────────────────────────────
+  function showResults(body) {
+    const first = body.items[0];
+    const isSingle = body.total === 1;
 
-    const dl  = document.getElementById('download-btn');
-    const ext = (body.image_url.split(';')[0].split('/')[1]) || 'webp';
-    const slug = body.mood_used.replace(/\s+/g,'_').replace(/[^a-z0-9_]/gi,'').slice(0,24);
-    dl.href     = body.image_url;
-    dl.download = `moodlens_${slug}.${ext}`;
-
+    // Summary meta
     document.getElementById('result-meta').innerHTML = `
       <div class="meta-row">
         <span class="meta-key">Mood</span>
-        <span class="meta-val">${esc(body.mood_used)}${body.is_preset ? ' <em style="color:var(--text-muted)">(preset)</em>' : ''}</span>
+        <span class="meta-val">${esc(first.mood_used)}${first.is_preset ? ' <em style="color:var(--text-muted)">(preset)</em>' : ''}</span>
       </div>
       <div class="meta-row">
         <span class="meta-key">Style</span>
-        <span class="meta-val">${esc(body.style_notes)}</span>
+        <span class="meta-val">${esc(first.style_notes)}</span>
       </div>
       <div class="meta-row">
         <span class="meta-key">Intensity</span>
-        <span class="meta-val">${body.intensity_used.toFixed(2)}</span>
-      </div>`;
+        <span class="meta-val">${first.intensity_used.toFixed(2)}</span>
+      </div>
+      ${!isSingle ? `<div class="meta-row"><span class="meta-key">Photos</span><span class="meta-val">${body.total} enhanced</span></div>` : ''}`;
+
+    // Download-all button
+    const dlAll = document.getElementById('btn-download-all');
+    dlAll.style.display = isSingle ? 'none' : 'block';
+
+    // Gallery
+    const gallery = document.getElementById('result-gallery');
+    gallery.className = `result-gallery${isSingle ? ' single' : ''}`;
+    gallery.innerHTML = '';
+
+    body.items.forEach((item, i) => {
+      const beforeUrl = URL.createObjectURL(uploadedFiles[i]);
+      const ext  = (item.image_url.split(';')[0].split('/')[1]) || 'webp';
+      const slug = item.filename.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '_').slice(0, 24);
+      const dlName = `moodlens_${slug}.${ext}`;
+
+      const card = document.createElement('div');
+      card.className = 'gallery-card';
+      card.innerHTML = `
+        <div class="gallery-before-after">
+          <div>
+            <div class="gallery-label">Before</div>
+            <img src="${esc(beforeUrl)}" alt="Before">
+          </div>
+          <div>
+            <div class="gallery-label">After</div>
+            <img src="${esc(item.image_url)}" alt="After">
+          </div>
+        </div>
+        <div class="gallery-card-footer">
+          <div class="gallery-filename">${esc(item.filename)}</div>
+          <a class="btn-dl-single" href="${esc(item.image_url)}" download="${esc(dlName)}">⬇ Download</a>
+        </div>`;
+      gallery.appendChild(card);
+    });
 
     const section = document.getElementById('result-section');
     section.style.display = 'block';
     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  async function downloadAll() {
+    for (const item of batchResults) {
+      const ext  = (item.image_url.split(';')[0].split('/')[1]) || 'webp';
+      const slug = item.filename.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '_').slice(0, 24);
+      const a = document.createElement('a');
+      a.href = item.image_url;
+      a.download = `moodlens_${slug}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Small delay so browsers don't block multiple simultaneous downloads
+      await new Promise(r => setTimeout(r, 350));
+    }
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
   function showError(msg) {
     const box = document.getElementById('error-box');
     box.textContent = '⚠ ' + msg;
@@ -470,8 +850,8 @@
 
   function esc(s) {
     return String(s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 </script>
 </body>

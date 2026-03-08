@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from .routes import enhance, health
+from .routes import detect_scene, enhance, health
 
 _STATIC = Path(__file__).parent.parent / "static"
 
@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
 
     application.include_router(health.router, tags=["health"])
     application.include_router(enhance.router, prefix="/api/v1", tags=["enhance"])
+    application.include_router(detect_scene.router, prefix="/api/v1", tags=["scene"])
 
     return application
 

@@ -3,12 +3,16 @@ from moodlens.models import PhotoAdjustments
 from moodlens.presets import PRESETS
 
 
-def test_four_presets_exist():
-    assert len(PRESETS) == 4
+def test_ten_presets_exist():
+    assert len(PRESETS) == 10
 
 
 def test_all_expected_keys_present():
-    assert set(PRESETS.keys()) == {"vintage", "hawaii", "cinematic", "moody_rainy"}
+    assert set(PRESETS.keys()) == {
+        "vintage", "hawaii", "cinematic", "moody_rainy",
+        "california_coastal", "golden_hour", "nordic",
+        "desert_sun", "jungle_green", "new_york",
+    }
 
 
 @pytest.mark.parametrize("name", ["vintage", "hawaii", "cinematic", "moody_rainy"])
